@@ -1,7 +1,7 @@
 {
   "name": "ai_cloud",
   "version": "1.0.0",
-  "description": "元数据管理",
+  "description": "搜索管理",
   "author": "LuHuan <ariellushanghai@icloud.com>",
   "private": true,
   "scripts": {
@@ -87,7 +87,7 @@
     "stylus-loader": "^3.0.2",
     "uglifyjs-webpack-plugin": "^1.2.2",
     "url-loader": "^0.6.2",
-    "vue-jest": "^2.1.0",
+    "vue-jest": "^2.1.1",
     "vue-loader": "^14.1.1",
     "vue-style-loader": "^4.0.2",
     "vue-template-compiler": "^2.5.13",

@@ -4,7 +4,7 @@
             el-card(:body-style="{padding:'15px'}")
                 .header(slot='header')
                     img.logo(:src='logo_file')
-                    .title 平安银行元数据管理
+                    .title 平安银行搜索管理
                 el-form(:model='form_login', :rules="rules", ref='form_login', size='small', :disabled='isLoading', label-position='left', label-width='70px')
                     el-form-item(label='用户名', prop='userName')
                         el-input(v-model='form_login.userName', :autofocus='true')

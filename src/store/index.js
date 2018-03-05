@@ -9,47 +9,46 @@ import {isEmpty, map} from 'lodash'
 Vue.use(Vuex);
 
 const state = {
-  user: {},
-  project_list: [],
-  visiable_global_header: false
+  user_name: '',
+  menus: []
 };
 const getters = {
   global_menu: state => {
-    if (isEmpty(state.user)) {
+    if (state.user_name === '') {
       return [];
     }
-    return map(state.user.resource, r => {
+    return map(state.menus, m => {
       return {
-        'route': types.MENU_ITEMS[r.resource].route,
-        'name': types.MENU_ITEMS[r.resource].menu_name
+        'route': m.tag,
+        'display_name': m.text,
+        'children': map(m.nodes, child => {
+          return {
+            'route': `${m.tag}/${child.tag}`,
+            'display_name': child.text,
+            'id': `${child.menuId}`
+          }
+        })
       }
     });
   },
   user_name: state => {
-    return state.user.userName;
-  },
-  visiable_global_header: state => {
-    return state.visiable_global_header;
+    return state.user_name;
   }
 };
 
 const mutations = {
   [types.SAVE_USER_INFO]: (state, data) => {
     console.log(`SAVE_USER_INFO: `, data)
-    state.user = data;
+    state.user_name = data.userName;
+    state.menus = data.list;
   },
   [types.SET_PROJECTS_LIST]: (state, data) => {
     console.log(`SET_PROJECTS_LIST: `, data)
-    state.project_list = data;
+    state.menus = data;
   },
   [types.LOGOUT]: state => {
-    state.user = {};
-  },
-  [types.HIDE_GLOBAL_HEADER]: state => {
-    state.visiable_global_header = false;
-  },
-  [types.SHOW_GLOBAL_HEADER]: state => {
-    state.visiable_global_header = true;
+    state.user_name = '';
+    state.menus = [];
   }
 };
 

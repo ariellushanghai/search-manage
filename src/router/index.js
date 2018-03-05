@@ -1,9 +1,9 @@
 import Router from 'vue-router'
 import store from '@/store/'
 
-
-const DashBoard = r => require(['@/pages/DashBoard'], r);
-
+// 首页
+// --搜索观象台
+const mgrObservatory = r => require(['@/pages/homePage/mgrObservatory'], r);
 
 
 const router = new Router({
@@ -11,28 +11,27 @@ const router = new Router({
     {
       name: 'index',
       redirect: {
-        name: 'DashBoard'
+        name: 'mgrObservatory'
       },
       path: '/'
     },
     {
-      name: 'DashBoard',
-      path: '/dashboard',
-      component: DashBoard
+      name: 'mgrObservatory',
+      path: '/homePage/mgrObservatory',
+      component: mgrObservatory
     }
   ]
 });
 
-router.beforeEach((to, from, next) => {
-  // console.log(`router.beforeEach(to: `, to, `from: `, from, `next: `, next);
-
-  if (to.name === 'login' || store.getters.user_name) {
-    return next();
-  } else {
-    return next({
-      name: 'login'
-    });
-  }
-});
+// router.beforeEach((to, from, next) => {
+//   // console.log(`router.beforeEach(to: `, to, `from: `, from, `next: `, next);
+//   if (store.getters.user_name) {
+//     return next();
+//   } else {
+//     return next({
+//       name: 'login'
+//     });
+//   }
+// });
 
 export default router

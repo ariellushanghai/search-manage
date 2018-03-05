@@ -26,8 +26,10 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   res => {
+    console.log(`interceptors res: `, res);
+    // debugger;
     if (Number(res.status) === 200 && res.data) {
-      if (res.data.result === 'success') {
+      if (Number(res.data.err) === 0) {
         return res.data.data;
       } else if (res.data.result === 'error') {
         console.error('response.err: ', res.data.message);

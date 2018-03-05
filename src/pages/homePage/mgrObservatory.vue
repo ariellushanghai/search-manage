@@ -1,5 +1,5 @@
 <template lang="pug">
-    el-container.DashBoard(v-loading='isLoading')
+    el-container.HomePage(v-loading='isLoading')
         el-main.user-manager-main
             el-dialog(title='新增用户', :visible.sync='dialog_add_user_visible', width='30%', :append-to-body='true')
                 el-form(:model='form_add_user', :rules='rules', ref='form_add_user', :status-icon='true', label-position='top', size='small')
@@ -58,7 +58,7 @@
   const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
-    name: 'DashBoard',
+    name: 'HomePage',
     metaInfo: {
       titleTemplate: '%s-用户管理'
     },
@@ -129,7 +129,7 @@
       }
     },
     mounted() {
-      this.fetchData();
+      // this.fetchData();
       this.table_height = this.resizeHandler();
       console.log(this.resizeHandler());
       window.onresize = debounce(() => {
@@ -145,7 +145,7 @@
       },
       fetchData() {
         let loading = this.$loading({
-          target: '.DashBoard',
+          target: '.HomePage',
           lock: true,
           text: '正在获取数据。。。',
           background: 'rgba(250,235,215,0.5)'
@@ -220,7 +220,7 @@
 </script>
 
 <style lang="stylus" scoped>
-    .DashBoard
+    .HomePage
         background-color antiquewhite
         min-height 100%
         position relative

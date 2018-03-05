@@ -5,12 +5,16 @@
                 img.logo(:src='logo_file')
         |
         el-col.title(:sm='3', :md='3', :lg='2', :xl='2')
-            span 元数据管理
+            span 搜索管理
         |
         el-col(:sm='15', :md='15', :lg='17', :xl='17')
-            el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', router='')
-                el-menu-item(v-for='(menu, idx) in menuItems', :index="'/'+menu.route", :key='menu.name')
-                    | {{menu.name}}
+            el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', :router='true')
+                el-submenu(v-for='menu in menuItems', :index="'/' + menu.route", :key='menu.route')
+                    template(slot='title')
+                        | {{menu.display_name}}
+                    el-menu-item(v-for='child in menu.children', :index="'/' + child.route", :key='child.route')
+                        | {{child.display_name}}
+
         |
         el-col.col-user(:span='3')
             el-dropdown(@command='handleCommand', placement='bottom')
@@ -46,6 +50,7 @@
         return this.$route.path;
       },
       menuItems() {
+        console.log('menuItems(): ', this.$store.getters.global_menu)
         return this.$store.getters.global_menu;
       },
       userName() {
@@ -53,9 +58,16 @@
       }
     },
     mounted() {
-
+      this.fetchMenu();
     },
     methods: {
+      fetchMenu() {
+        return API.getMenus().then(res => {
+          console.log(`fetchMenu() success!!`);
+          this.$store.commit('SAVE_USER_INFO', res);
+          return this.$router.push({name: 'index'})
+        });
+      },
       logOut() {
         return API.logOut().then(res => {
           console.log(`logout success!!`);

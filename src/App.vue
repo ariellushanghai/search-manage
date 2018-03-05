@@ -14,7 +14,7 @@
   export default {
     name: 'app',
     metaInfo: {
-      title: '元数据管理️',
+      title: '搜索管理️',
       titleTemplate: '%s-'
     },
     components: {
@@ -42,6 +42,9 @@
         left 0
         right 0
         top 0
+
+    .header /deep/ .el-menu--horizontal
+        border-bottom none
 
     .container
         position absolute
