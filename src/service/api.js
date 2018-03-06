@@ -27,6 +27,10 @@ export default {
   getMenus() {
     return network.get('/getUserMenu.json');
   },
+  // 获取 关键词管理-配置功能服务
+  getAllApp() {
+    return network.get('/getAllApp.json');
+  },
   // 构建镜像
   buildImage(obj) {
     let req = network.create({

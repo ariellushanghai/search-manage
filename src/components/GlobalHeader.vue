@@ -44,9 +44,9 @@
     },
     computed: {
       defaultActive() {
-        if (/^\/project\//.exec(this.$route.path)) {
-          return '/project'
-        }
+        // if (/^\/project\//.exec(this.$route.path)) {
+        //   return '/project'
+        // }
         return this.$route.path;
       },
       menuItems() {
@@ -107,6 +107,7 @@
         justify-content space-around
         align-items center
         background-color ping_an-orange
+        user-select none
 
     .logo
         display block
@@ -116,6 +117,7 @@
         height auto
         max-height header-height
 
+
     .title
         justify-content center
         line-height header-height
@@ -124,6 +126,7 @@
         font-size 20px
         font-weight bold
         color #fff
+        user-select none
 
     .col-user
         display flex

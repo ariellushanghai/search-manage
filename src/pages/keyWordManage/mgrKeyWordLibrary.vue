@@ -1,29 +1,13 @@
 <template lang="pug">
-    el-container.mgrObservatory(v-loading='isLoading')
+    el-container.mgrKeyWordLibrary(v-loading='isLoading')
         el-main.user-manager-main
-            el-dialog(title='新增用户', :visible.sync='dialog_add_user_visible', width='30%', :append-to-body='true')
-                el-form(:model='form_add_user', :rules='rules', ref='form_add_user', :status-icon='true', label-position='top', size='small')
-
-                    el-form-item(label='用户名', prop='userName')
-                        el-input(v-model='form_add_user.userName')
-                    el-form-item(label='角色', prop='role')
-                        el-select(v-model='form_add_user.role', placeholder='请选择用户角色', style='width: 100%;')
-                            el-option(v-for='role in roles', :label='role.name', :key='role.v', :value='role.v')
-                    el-form-item(label='密码', prop='password')
-                        el-input(v-model='form_add_user.password', type='password')
-
-                .dialog-footer(slot='footer')
-                    el-button(@click="cancelForm('form_add_user')") 取消
-                    el-button(type='primary', @click="validateForm('form_add_user')", icon='el-icon-upload2', :loading='isSendingForm')
-                        | 提交
-
-            el-card.card.operations(:body-style="{padding:'15px',display: 'flex','justify-content': 'space-between'}")
-                .button-group
+            el-card.card.operations(:body-style="{padding:'10px',display: 'flex','justify-content': 'space-between'}")
+                el-form(:inline="true" :model="form_search")
                     el-button(size='small', type='primary', icon='el-icon-circle-plus-outline', style='margin-right: 10px;', @click='handleAddUser')
-                        | 新增用户
-                el-input(placeholder='过滤用户名', suffix-icon='el-icon-search', size='small', :clearable='true', v-model='input_users_filter')
+                            | 新增用户
+                    el-input(placeholder='过滤用户名', suffix-icon='el-icon-search', size='small', :clearable='true', v-model='input_users_filter')
 
-            el-card.card(:body-style="{padding:'15px'}")
+            el-card.card(:body-style="{padding:'10px'}")
                 el-table.user-table(:data='tableUsers', :height='table_height', :stripe='true', :border='true')
                     el-table-column(prop='userName', label='用户名', :sortable='true')
                         template(slot-scope='scope')
@@ -58,7 +42,7 @@
   const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
-    name: 'mgrObservatory',
+    name: 'mgrKeyWordLibrary',
     metaInfo: {
       titleTemplate: '%s-用户管理'
     },
@@ -145,7 +129,7 @@
       },
       fetchData() {
         let loading = this.$loading({
-          target: '.mgrObservatory',
+          target: '.mgrKeyWordLibrary',
           lock: true,
           text: '正在获取数据。。。',
           background: 'rgba(250,235,215,0.5)'
@@ -220,7 +204,7 @@
 </script>
 
 <style lang="stylus" scoped>
-    .mgrObservatory
+    .mgrKeyWordLibrary
         background-color antiquewhite
         min-height 100%
         position relative
@@ -242,6 +226,9 @@
         margin-bottom 0
         flex-shrink 1
         height calc(100% - 74px)
+
+    .card.operations /deep/ .el-card__body
+        padding 10px
 
     .card.operations .el-input
         width 200px
