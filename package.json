@@ -77,7 +77,7 @@
     "postcss-import": "^11.1.0",
     "postcss-loader": "^2.1.1",
     "postcss-url": "^7.3.1",
-    "pug": "^2.0.0-rc.4",
+    "pug": "^2.0.0",
     "pug-filters": "^2.1.5",
     "pug-loader": "^2.3.0",
     "rimraf": "^2.6.2",
