@@ -7,7 +7,7 @@ const mgrObservatory = r => require(['@/pages/homePage/mgrObservatory'], r);
 // 关键词管理
 // --关键词库
 const mgrKeyWordLibrary = r => require(['@/pages/keyWordManage/mgrKeyWordLibrary'], r);
-const mgrFunKeyWord = r => require(['@/pages/keyWordManage/mgrFunKeyWord'], r);
+const mgrFunKeyWord = r => require(['@/pages/keyWordManage/mgrFunKeyWord.vue'], r);
 
 
 const router = new Router({
@@ -28,6 +28,13 @@ const router = new Router({
       name: 'mgrKeyWordLibrary',
       path: '/keyWordManage/mgrKeyWordLibrary',
       component: mgrKeyWordLibrary
+    },
+    {
+      name: 'keyWordManage',
+      redirect: {
+        name: 'mgrFunKeyWord'
+      },
+      path: '/keyWordManage'
     },
     {
       name: 'mgrFunKeyWord',

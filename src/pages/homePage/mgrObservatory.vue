@@ -130,11 +130,11 @@
     },
     mounted() {
       // this.fetchData();
-      this.table_height = this.resizeHandler();
-      console.log(this.resizeHandler());
-      window.onresize = debounce(() => {
-        this.table_height = this.resizeHandler();
-      }, 300);
+      // this.table_height = this.resizeHandler();
+      // console.log(this.resizeHandler());
+      // window.onresize = debounce(() => {
+      //   this.table_height = this.resizeHandler();
+      // }, 300);
     },
     beforeDestroy: function () {
       window.onresize = undefined;

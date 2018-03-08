@@ -12,19 +12,19 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {
-        target: 'http://10.14.217.244:8080/search/mgrModule',
+        target: 'http://10.14.217.244:8080/searchMgr',
         changeOrigin: true,
         pathRewrite: {
           '^/api': ''
         }
-      },
-      '/cm': {
-        target: 'http://10.14.220.122:8080/cm',
-        // changeOrigin: true,
-        pathRewrite: {
-          '^/cm': ''
-        }
       }
+      // '/cm': {
+      //   target: 'http://10.14.220.122:8080/cm',
+      //   // changeOrigin: true,
+      //   pathRewrite: {
+      //     '^/cm': ''
+      //   }
+      // }
     },
 
     // Various Dev Server settings

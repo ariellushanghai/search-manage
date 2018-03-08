@@ -1,6 +1,6 @@
 <template lang="pug">
     el-container.mgrFunKeyWord
-        el-main.user-manager-main
+        el-main.main
             el-card.card.operations(:body-style="{padding:'10px',display: 'flex','justify-content': 'space-between'}")
                 el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="100px", label-position='left', size='mini')
                     div(style='width: 40%;')
@@ -26,7 +26,7 @@
                         el-button(type='primary', @click="", icon='el-icon-download', size='mini')
                             | 导出
 
-            .card-like
+            .table-mgrFunKeyWord
                 el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
                     el-table-column(prop='id', label='条目ID')
                     el-table-column(prop='name', label='功能名称')
@@ -77,31 +77,40 @@
           endDate: ''
         },
         fun_key_words: [],
-        table_height: this.resizeHandler()
+        table_height: 0
+        // table_height: this.resizeHandler()
       }
     },
     computed: {
       tableData: function () {
-        console.log(cloneDeep(this.fun_key_words))
+        console.log(cloneDeep(this.fun_key_words));
         return cloneDeep(this.fun_key_words);
       }
     },
     mounted() {
-      this.fetchData();
-      this.table_height = this.resizeHandler();
-      console.log(this.resizeHandler());
+      // this.table_height = this.resizeHandler();
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
-      }, 300);
+      }, 200);
+      this.triggerResize();
+      return this.fetchData();
     },
     beforeDestroy: function () {
       window.onresize = undefined;
     },
     methods: {
-      resizeHandler(): number {
-        return document.querySelector('#router_view').getBoundingClientRect().height - (20 + 64 + 10 + 30 + 20);
+      triggerResize() {
+        let evt = document.createEvent('Event');
+        evt.initEvent('resize', true, true);
+        window.dispatchEvent(evt);
+      },
+      resizeHandler() {
+        console.log(`resizeHandler() => `, document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12));
+        this.table_height = document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12);
+        return document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12);
       },
       fetchData() {
+
         let loading = this.$loading({
           target: '.mgrFunKeyWord',
           lock: true,
@@ -112,6 +121,7 @@
           console.log(`res.list: `, res.list);
           this.fun_key_words = res.list;
           loading.close();
+
         }, err => {
           console.error(`err: `, err);
           loading.close();
@@ -120,6 +130,7 @@
             type: 'error',
             duration: 0
           });
+          window.onresize();
         });
       },
       sortCreateDate(a: number, b: number): number {
@@ -184,7 +195,7 @@
         min-height 100%
         position relative
 
-    .user-manager-main
+    .main
         display flex
         flex-direction column
         padding 5px
@@ -196,11 +207,7 @@
     .card
         margin-bottom 5px
         flex-shrink 0
-
-    .card:last-of-type
-        margin-bottom 0
-        flex-shrink 1
-        height calc(100% - 74px)
+        flex-grow 0
 
     .card.operations /deep/ .el-card__body
         padding 5px
@@ -216,14 +223,17 @@
     .table
         padding 0
         width 100%
+        height 100%
         font-size 12px
 
-    .card-like
+    .table-mgrFunKeyWord
+        flex-shrink 1
+        flex-grow 1
+        margin-bottom 0
+        overflow hidden
         padding 5px
         border 1px solid #ebeef5
         background-color #fff
         box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
-        color #303133
         border-radius 4px
-
 </style>

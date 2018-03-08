@@ -1,3 +1,7 @@
+html {
+    height: 100%;
+}
+
 body {
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -36,11 +40,12 @@ input::selection, .cell *::selection, .cell::selection {
 }
 
 ::-webkit-scrollbar {
-    width: 5px;
+    width: 8px;
+    height: 8px;
+    background-color: rgba(255, 255, 255, 0);
 }
 
 ::-webkit-scrollbar-thumb {
-    -webkit-border-radius: 10px;
     border-radius: 10px;
-    background-color: rgba(234, 85, 5, 0.5);
+    background-color: rgba(234, 85, 5, 1);
 }
