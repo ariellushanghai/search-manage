@@ -29,14 +29,9 @@ export default {
     return network.get('/user/getMgrMenu.do');
   },
   // 获取 关键词管理-配置功能服务
-  getAllApp() {
+  getAllApp(req) {
     // return network.get('/getAllApp.json');
-    return network.get('/module/getAllApp.do', {
-      params: {
-        startIndex: 0,
-        pageSize: 10
-      }
-    });
+    return network.post('/module/getAllApp.do', undefined, {params: req});
   },
   // 构建镜像
   buildImage(obj) {

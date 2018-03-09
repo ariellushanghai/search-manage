@@ -1,16 +1,19 @@
 <template lang="pug">
     el-container.mgrFunKeyWord
         el-main.main
-            el-card.card.operations(:body-style="{padding:'10px',display: 'flex','justify-content': 'space-between'}")
+            el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
                 el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="100px", label-position='left', size='mini')
                     div(style='width: 40%;')
                         el-form-item(label='功能名称:')
-                            el-input(v-model.trim='form_search.name', auto-complete='off')
+                            el-input(v-model.trim='form_search.name', auto-complete='off', :clearable='true')
+
                         el-form-item(label='跳转链接:')
-                            el-input(v-model.trim='form_search.keyWords', auto-complete='off')
+                            el-input(v-model.trim='form_search.url', auto-complete='off', :clearable='true')
+
                     div(style='width: 40%;')
                         el-form-item(label='关键词:')
-                            el-input(v-model.trim='form_search.marketTerm', auto-complete='off')
+                            el-input(v-model.trim='form_search.marketTerm', auto-complete='off', :clearable='true')
+
                         el-form-item(label='关键词有效期:')
                             el-col(:span="11")
                                 el-date-picker(type="date" placeholder="选择日期" v-model="form_search.beginDate" style="width: 100%;")
@@ -19,20 +22,21 @@
                             el-col(:span="11")
                                 el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")
                     div(style='width: 20%;')
-                        el-button(type='primary', @click="", icon='el-icon-search', :loading='isSearching', size='mini')
+                        el-button(type='primary', @click="fetchData", icon='el-icon-search', :loading='isSearching', size='mini')
                             | 搜索
-                        el-button(type='primary', @click="", icon='el-icon-error', size='mini')
+                        el-button(type='primary', @click="resetFormSearch", icon='el-icon-error', size='mini')
                             | 重置
                         el-button(type='primary', @click="", icon='el-icon-download', size='mini')
                             | 导出
 
-            .table-mgrFunKeyWord
+            .table-container
                 el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
                     el-table-column(prop='id', label='条目ID')
                     el-table-column(prop='name', label='功能名称')
                     el-table-column(prop='parent', label='父级功能标识')
-                    el-table-column(prop='keyWords', label='关键词', :show-overflow-tooltip='true', width='200px')
                     el-table-column(prop='weightWord', label='权重关键词')
+                    el-table-column(prop='keyWords', label='关键词', :show-overflow-tooltip='true', width='200px')
+                    el-table-column(prop='marketTerm', label='营销术语')
                     el-table-column(prop='url', label='跳转链接', width='300px')
                     el-table-column(prop='sonUrl', label='子跳转链接')
                     el-table-column(prop='actionType', label='跳转链接类型')
@@ -50,21 +54,21 @@
                     el-table-column(prop='appRemark', label='功能标识')
                     el-table-column(prop='imgUrl', label='图标链接')
 
+            .pagination
+                el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size='10', layout='total, sizes, prev, pager, next, jumper', :page-sizes='[10, 20, 50, 100]', :background='true', :small='true')
+
 </template>
 
 <script>
   // @flow
   import API from '@/service/api'
   import {map, extend, assign, debounce, isEmpty, cloneDeep} from 'lodash'
-  import format from 'date-fns/format'
   import ElCard from "element-ui/packages/card/src/main";
-
-  const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
     name: 'mgrFunKeyWord',
     metaInfo: {
-      titleTemplate: '%s-用户管理'
+      titleTemplate: '%s-功能服务'
     },
     data() {
       return {
@@ -72,10 +76,24 @@
         form_search: {
           name: '',
           keyWords: '',
-          marketTerm: '',
+          url: '',
           beginDate: '',
-          endDate: ''
+          endDate: '',
+          startIndex: 0,
+          pageSize: 10
         },
+        tmpl_form_search: {
+          name: '',
+          keyWords: '',
+          url: '',
+          beginDate: '',
+          endDate: '',
+          startIndex: 0,
+          pageSize: 10
+        },
+        current_page: 1,
+        page_size: 10,
+        page_total: 0,
         fun_key_words: [],
         table_height: 0
         // table_height: this.resizeHandler()
@@ -88,7 +106,7 @@
       }
     },
     mounted() {
-      // this.table_height = this.resizeHandler();
+      console.log(`功能服务 mounted()`)
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
       }, 200);
@@ -105,23 +123,22 @@
         window.dispatchEvent(evt);
       },
       resizeHandler() {
-        console.log(`resizeHandler() => `, document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12));
-        this.table_height = document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12);
-        return document.querySelector('.table-mgrFunKeyWord').getBoundingClientRect().height - (12);
+        return document.querySelector('.table-container').getBoundingClientRect().height - (12);
       },
       fetchData() {
-
         let loading = this.$loading({
           target: '.mgrFunKeyWord',
           lock: true,
           text: '正在获取数据。。。',
-          background: 'rgba(250,235,215,0.5)'
+          background: 'rgba(255,255,255,0.3)'
         });
-        return API.getAllApp().then(res => {
+        this.form_search.startIndex = this.current_page - 1;
+        this.form_search.pageSize = this.page_size;
+        return API.getAllApp(this.form_search).then(res => {
           console.log(`res.list: `, res.list);
           this.fun_key_words = res.list;
+          this.page_total = res.total;
           loading.close();
-
         }, err => {
           console.error(`err: `, err);
           loading.close();
@@ -133,56 +150,19 @@
           window.onresize();
         });
       },
-      sortCreateDate(a: number, b: number): number {
-        return Number(a.createDate) - Number(b.createDate);
+      resetFormSearch() {
+        this.form_search = extend({}, this.tmpl_form_search);
+        return this.fetchData();
       },
-      handleAddUser() {
-        console.log(`handleAddUser()`);
-        this.operation = 'add_user';
-        this.form_add_user = extend({}, this.tmpl_form_add_user);
-        this.dialog_add_user_visible = true;
+      handleCurrentPageChange(val) {
+        console.log(`当前页: ${val}`);
+        this.current_page = val;
+        return this.fetchData();
       },
-      cancelForm(formName: string) {
-        console.log(`cancelForm(${formName})`);
-        this.$refs[formName].resetFields();
-        this.form_add_user = extend({}, this.tmpl_form_add_user);
-        this.dialog_add_user_visible = false;
-      },
-      validateForm(form: string) {
-        console.log('validateForm(form): ', form);
-        console.log(this.$refs[form]);
-
-        this.$refs[form].validate((valid) => {
-          console.log(`valid: `, valid);
-          if (valid) {
-            // alert('submit!');
-            return this.postForm(this.form_add_user);
-          } else {
-            console.error('error submit!!');
-            return false;
-          }
-        });
-      },
-      postForm(data) {
-        console.log(`postForm(): `, data);
-        API[this.form_actions[this.operation].api_name](data).then(res => {
-          this.$notify({
-            message: `${this.form_actions[this.operation].display_name}成功`,
-            type: 'success',
-            duration: 2000
-          });
-          this.isSendingForm = false;
-          this.cancelForm(this.form_actions[this.operation].form_name);
-          return this.fetchData();
-        }, err => {
-          console.log(`err: `, err);
-          this.$notify({
-            message: `${err.message}`,
-            type: 'error',
-            duration: 0
-          });
-          this.isSendingForm = false;
-        });
+      handlePageSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        this.page_size = val;
+        return this.fetchData();
       }
     },
     components: {ElCard}
@@ -191,7 +171,7 @@
 
 <style lang="stylus" scoped>
     .mgrFunKeyWord
-        background-color antiquewhite
+        background-color #eee
         min-height 100%
         position relative
 
@@ -226,7 +206,13 @@
         height 100%
         font-size 12px
 
-    .table-mgrFunKeyWord
+    .table-container /deep/ .el-table--mini th
+        padding 5px 0
+
+    .table-container /deep/ .el-table th > .cell
+        color #303236
+
+    .table-container
         flex-shrink 1
         flex-grow 1
         margin-bottom 0
@@ -236,4 +222,13 @@
         background-color #fff
         box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
         border-radius 4px
+
+    .pagination
+        display flex
+        justify-content center
+        flex none
+
+    .pagination /deep/ .el-pagination
+        padding 5px
+        padding-bottom 0px
 </style>

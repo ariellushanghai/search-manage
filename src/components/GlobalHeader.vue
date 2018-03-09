@@ -50,7 +50,6 @@
         return this.$route.path;
       },
       menuItems() {
-        console.log('menuItems(): ', this.$store.getters.global_menu)
         return this.$store.getters.global_menu;
       },
       userName() {
@@ -65,7 +64,7 @@
         return API.getMenus().then(res => {
           console.log(`fetchMenu() success!!`);
           this.$store.commit('SAVE_USER_INFO', res);
-          return this.$router.push({name: 'index'})
+          // return this.$router.push({name: 'index'})
         });
       },
       logOut() {

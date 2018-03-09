@@ -13,9 +13,6 @@ axios.interceptors.request.use(
     config.validateStatus = function (status) {
       return Number(status) === 200;
     };
-    if (store.getters.user_id) {
-      config.headers.Authorization = `Bearer ${store.getters.user_id}`;
-    }
     return config;
   },
   err => {

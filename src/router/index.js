@@ -30,13 +30,6 @@ const router = new Router({
       component: mgrKeyWordLibrary
     },
     {
-      name: 'keyWordManage',
-      redirect: {
-        name: 'mgrFunKeyWord'
-      },
-      path: '/keyWordManage'
-    },
-    {
       name: 'mgrFunKeyWord',
       path: '/keyWordManage/mgrFunKeyWord',
       component: mgrFunKeyWord
@@ -45,14 +38,15 @@ const router = new Router({
 });
 
 // router.beforeEach((to, from, next) => {
-//   // console.log(`router.beforeEach(to: `, to, `from: `, from, `next: `, next);
-//   if (store.getters.user_name) {
-//     return next();
-//   } else {
-//     return next({
-//       name: 'login'
-//     });
-//   }
+//   console.log(`router.beforeEach(to: `, to, ` from: `, from);
+//   return next();
+//   // if (store.getters.user_name) {
+//   //   return next();
+//   // } else {
+//   //   return next({
+//   //     name: 'login'
+//   //   });
+//   // }
 // });
 
 export default router
