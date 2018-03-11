@@ -12,15 +12,17 @@
 
                     div(style='width: 40%;')
                         el-form-item(label='关键词:')
-                            el-input(v-model.trim='form_search.marketTerm', auto-complete='off', :clearable='true')
+                            el-input(v-model.trim='form_search.marketTerm', auto-complete='off')
 
                         el-form-item(label='关键词有效期:')
-                            el-col(:span="11")
-                                el-date-picker(type="date" placeholder="选择日期" v-model="form_search.beginDate" style="width: 100%;")
-                            el-col(:span="2", style='text-align: center;')
-                                | 至
-                            el-col(:span="11")
-                                el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")
+                            <!--el-col(:span="11")-->
+                            <!--el-date-picker(type="date" placeholder="选择日期" v-model="form_search.beginDate" style="width: 100%;")-->
+                            <!--el-col(:span="2", style='text-align: center;')-->
+                            <!--| 至-->
+                            <!--el-col(:span="11")-->
+                            <!--el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")-->
+                            el-date-picker(v-model='form_search.dateRange', type='daterange', format='yyyy/MM/dd', align='right', :unlink-panels='true', range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期', :picker-options='date_picker_options')
+
                     div(style='width: 20%;')
                         el-button(type='primary', @click="fetchData", icon='el-icon-search', :loading='isSearching', size='mini')
                             | 搜索
@@ -79,6 +81,7 @@
           url: '',
           beginDate: '',
           endDate: '',
+          dateRange: '',
           startIndex: 0,
           pageSize: 10
         },
@@ -88,8 +91,52 @@
           url: '',
           beginDate: '',
           endDate: '',
+          dateRange: '',
           startIndex: 0,
           pageSize: 10
+        },
+        date_picker_options: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近半年',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 182);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一年',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
         },
         current_page: 1,
         page_size: 10,
@@ -101,6 +148,9 @@
     },
     computed: {
       tableData: function () {
+        if (isEmpty(this.fun_key_words)) {
+          return [];
+        }
         console.log(cloneDeep(this.fun_key_words));
         return cloneDeep(this.fun_key_words);
       }
@@ -123,7 +173,10 @@
         window.dispatchEvent(evt);
       },
       resizeHandler() {
-        return document.querySelector('.table-container').getBoundingClientRect().height - (12);
+        if (document.querySelector('.table-container')) {
+          return document.querySelector('.table-container').getBoundingClientRect().height - (12);
+        }
+        return 0;
       },
       fetchData() {
         let loading = this.$loading({
@@ -171,7 +224,7 @@
 
 <style lang="stylus" scoped>
     .mgrFunKeyWord
-        background-color #eee
+        background-color #F8FAFE
         min-height 100%
         position relative
 

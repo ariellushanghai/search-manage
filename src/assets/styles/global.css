@@ -47,5 +47,5 @@ input::selection, .cell *::selection, .cell::selection {
 
 ::-webkit-scrollbar-thumb {
     border-radius: 10px;
-    background-color: rgba(234, 85, 5, 1);
+    background-color: #EA5505;
 }
