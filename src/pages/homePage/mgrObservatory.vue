@@ -1,29 +1,31 @@
 <template lang="pug">
     el-container.mgrObservatory
         el-main.main
-            el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
-                div
-                    el-button(type='primary', @click="addMain", icon='el-icon-circle-plus', size='mini')
-                        | 新增主版本号
-                    el-button(type='primary', @click="addFork", icon='el-icon-circle-plus', size='mini')
-                        | 新增分支号
+            .chart
+                #flow_chart
+                    flow-chart(:dom_id="'flow_chart'", :data="{}")
+            .non-chart
+                el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
+                    div
+                        el-button(type='primary', @click="addMain", icon='el-icon-circle-plus', size='mini')
+                            | 新增主版本号
+                        el-button(type='primary', @click="addFork", icon='el-icon-circle-plus', size='mini')
+                            | 新增分支号
 
-            .table-container
-                el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
-                    el-table-column(prop='module', label='域', width='75px')
-                    el-table-column(prop='versionNum', label='主版本号', width='75px')
-                    el-table-column(prop='branchNum', label='分支号', width='75px')
-                    el-table-column(prop='title', label='标题', width='150px')
-                    el-table-column(prop='content', label='内容描述', width='150px')
-                    el-table-column(prop='openFlag', label='是否开启', width='150px')
-                    el-table-column(prop='userTagId', label='标签ID', width='200px')
-                    el-table-column(prop='createTime', label='创建时间', width='200px')
-                    el-table-column(prop='updateTime', label='修改时间', width='200px')
+                .table-container
+                    el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
+                        el-table-column(prop='module', label='域', min-width='75px')
+                        el-table-column(prop='versionNum', label='主版本号', min-width='75px')
+                        el-table-column(prop='branchNum', label='分支号', min-width='75px')
+                        el-table-column(prop='title', label='标题', min-width='150px')
+                        el-table-column(prop='content', label='内容描述', min-width='200px')
+                        el-table-column(prop='openFlag', label='是否开启', min-width='50px')
+                        el-table-column(prop='userTagId', label='标签ID', min-width='150px')
+                        el-table-column(prop='createTime', label='创建时间', min-width='200px')
+                        el-table-column(prop='updateTime', label='修改时间', min-width='200px')
 
-
-            .pagination
-                el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
-                <!--el-pagination(@size-change="handlePageSizeChange", @current-change="handleCurrentPageChange", :current-page="current_page", :page-sizes="[100, 200, 300, 400]", :page-size="100", layout="total, prev, pager, next, jumper", :total="400")-->
+                .pagination
+                    el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
 </template>
 
 <script>
@@ -31,6 +33,7 @@
   import API from '@/service/api'
   import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit} from 'lodash'
   import ElCard from "element-ui/packages/card/src/main";
+  import FlowChart from '@/components/FlowChart.vue'
 
   export default {
     name: 'mgrObservatory',
@@ -106,21 +109,21 @@
         current_page: 1,
         page_size: 10,
         page_total: 0,
-        fun_key_words: [],
+        raw_list: [],
         table_height: 0
         // table_height: this.resizeHandler()
       }
     },
     computed: {
       tableData: function () {
-        return cloneDeep(this.fun_key_words);
+        return cloneDeep(this.raw_list);
       }
     },
     mounted() {
       console.log(`版本配置 mounted()`)
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
-      }, 500);
+      }, 50);
       this.triggerResize();
       return this.fetchData();
     },
@@ -143,7 +146,7 @@
       },
       fetchData(startIndex) {
         let loading = this.$loading({
-          target: '.mgrObservatory',
+          target: '.table-container',
           lock: true,
           text: '正在获取数据。。。',
           background: 'rgba(255,255,255,0.3)'
@@ -154,9 +157,9 @@
           this.form_version.beginDate = this.form_version.dateRange[0];
           this.form_version.endDate = this.form_version.dateRange[1];
         }
-        return API.getAllApp(omit(this.form_version, ['dateRange'])).then(res => {
+        return API.getVersion().then(res => {
           console.log(`res.list: `, res.list);
-          this.fun_key_words = res.list;
+          this.raw_list = res.list;
           this.page_total = Number(res.total);
           loading.close();
         }, err => {
@@ -167,14 +170,11 @@
             type: 'error',
             duration: 0
           });
-          window.onresize();
         });
       },
-      exportCSV() {
-        return API.exportCSV({}).then(res => {
-        }, err => {
-          console.error(`err: `, err);
-        });
+      addMain() {
+      },
+      addFork() {
       },
       resetFormSearch() {
         this.form_version = extend({}, this.tmpl_form_version);
@@ -191,7 +191,10 @@
         return this.fetchData();
       }
     },
-    components: {ElCard}
+    components: {
+      FlowChart,
+      ElCard
+    }
   }
 </script>
 
@@ -238,7 +241,7 @@
     .table-container /deep/ .el-table th > .cell
         color #303236
 
-    .table-container
+    .table-container, .chart
         flex-shrink 1
         flex-grow 1
         margin-bottom 0
@@ -248,6 +251,19 @@
         background-color #fff
         box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
         border-radius 4px
+
+    .chart
+        height 20%
+        margin-bottom 5px
+
+    .non-chart
+        height calc(80% - 5px)
+        display flex
+        flex-direction column
+
+    #flow_chart
+        width 100%
+        height 100%
 
     .pagination
         display flex
