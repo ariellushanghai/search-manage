@@ -6,7 +6,6 @@ import store from '@/store/'
 const mgrObservatory = r => require(['@/pages/homePage/mgrObservatory'], r);
 // 关键词管理
 // --关键词库
-const mgrKeyWordLibrary = r => require(['@/pages/keyWordManage/mgrKeyWordLibrary'], r);
 const mgrFunKeyWord = r => require(['@/pages/keyWordManage/mgrFunKeyWord.vue'], r);
 
 
@@ -24,11 +23,7 @@ const router = new Router({
       path: '/homePage/mgrObservatory',
       component: mgrObservatory
     },
-    {
-      name: 'mgrKeyWordLibrary',
-      path: '/keyWordManage/mgrKeyWordLibrary',
-      component: mgrKeyWordLibrary
-    },
+
     {
       name: 'mgrFunKeyWord',
       path: '/keyWordManage/mgrFunKeyWord',

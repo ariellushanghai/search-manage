@@ -2,7 +2,7 @@
     el-container.mgrFunKeyWord
         el-main.main
             el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
-                el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="100px", label-position='left', size='mini')
+                el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="150px", label-position='left', size='mini')
                     div(style='width: 40%;')
                         el-form-item(label='功能名称:')
                             el-input(v-model.trim='form_search.name', auto-complete='off', :clearable='true')
@@ -21,50 +21,50 @@
                             <!--| 至-->
                             <!--el-col(:span="11")-->
                             <!--el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")-->
-                            el-date-picker(v-model='form_search.dateRange', type='daterange', format='yyyy/MM/dd', align='right', :unlink-panels='true', range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期', :picker-options='date_picker_options')
+                            el-date-picker(v-model='form_search.dateRange', type='daterange', value-format='yyyy/MM/dd', format='yyyy/MM/dd', align='center', :unlink-panels='true', range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期', :picker-options='date_picker_options' , size='mini', style="width: 100%;")
 
                     div(style='width: 20%;')
-                        el-button(type='primary', @click="fetchData", icon='el-icon-search', :loading='isSearching', size='mini')
+                        el-button(type='primary', @click="fetchData('0')", icon='el-icon-search', :loading='isSearching', size='mini')
                             | 搜索
                         el-button(type='primary', @click="resetFormSearch", icon='el-icon-error', size='mini')
                             | 重置
-                        el-button(type='primary', @click="", icon='el-icon-download', size='mini')
+                        el-button(type='primary', @click="exportCSV", icon='el-icon-download', size='mini')
                             | 导出
 
             .table-container
                 el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
-                    el-table-column(prop='id', label='条目ID')
-                    el-table-column(prop='name', label='功能名称')
-                    el-table-column(prop='parent', label='父级功能标识')
-                    el-table-column(prop='weightWord', label='权重关键词')
-                    el-table-column(prop='keyWords', label='关键词', :show-overflow-tooltip='true', width='200px')
-                    el-table-column(prop='marketTerm', label='营销术语')
+                    el-table-column(prop='id', label='条目ID', width='100px')
+                    el-table-column(prop='name', label='功能名称', width='100px')
+                    el-table-column(prop='parent', label='父级功能标识', width='150px')
+                    <!--el-table-column(prop='weightWord', label='权重关键词 (可编辑)', width='300px')-->
+                    el-table-column(prop='keyWords', label='关键词 (可编辑)', :show-overflow-tooltip='true', width='300px')
+                    el-table-column(prop='marketTerm', label='营销术语 (可编辑)', width='300px')
                     el-table-column(prop='url', label='跳转链接', width='300px')
-                    el-table-column(prop='sonUrl', label='子跳转链接')
-                    el-table-column(prop='actionType', label='跳转链接类型')
-                    el-table-column(prop='appVersion', label='最低可兼容APP版本')
-                    el-table-column(prop='level', label='功能层级')
-                    el-table-column(prop='fatherId', label='父节点ID')
-                    el-table-column(prop='status', label='功能标识')
-                    el-table-column(prop='remark', label='说明')
-                    el-table-column(prop='updateBy', label='更新人')
-                    el-table-column(prop='updateDate', label='更新日期')
-                    el-table-column(prop='clientSystem', label='客户端操作系统')
-                    el-table-column(prop='androidLowVersion', label='最低可兼容Android版本')
-                    el-table-column(prop='iosLowVersion', label='最低可兼容IOS版本')
-                    el-table-column(prop='weight', label='权重')
-                    el-table-column(prop='appRemark', label='功能标识')
-                    el-table-column(prop='imgUrl', label='图标链接')
+                    el-table-column(prop='sonUrl', label='子跳转链接', width='300px')
+                    el-table-column(prop='actionType', label='跳转链接类型', width='100px')
+                    el-table-column(prop='appVersion', label='最低可兼容APP版本', width='180px')
+                    el-table-column(prop='level', label='功能层级', width='100px')
+                    el-table-column(prop='fatherId', label='父节点ID', width='100px')
+                    el-table-column(prop='status', label='功能标识', width='100px')
+                    el-table-column(prop='remark', label='说明', width='100px')
+                    el-table-column(prop='updateBy', label='更新人', width='150px')
+                    el-table-column(prop='updateDate', label='更新日期', width='150px')
+                    el-table-column(prop='clientSystem', label='客户端操作系统', width='120px')
+                    el-table-column(prop='androidLowVersion', label='最低可兼容Android版本', width='180px')
+                    el-table-column(prop='iosLowVersion', label='最低可兼容IOS版本', width='150px')
+                    el-table-column(prop='weight', label='权重', width='50px')
+                    el-table-column(prop='appRemark', label='功能标识', width='100px')
+                    el-table-column(prop='imgUrl', label='图标链接', width='100px')
 
             .pagination
-                el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size='10', layout='total, sizes, prev, pager, next, jumper', :page-sizes='[10, 20, 50, 100]', :background='true', :small='true')
-
+                el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
+                <!--el-pagination(@size-change="handlePageSizeChange", @current-change="handleCurrentPageChange", :current-page="current_page", :page-sizes="[100, 200, 300, 400]", :page-size="100", layout="total, prev, pager, next, jumper", :total="400")-->
 </template>
 
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, extend, assign, debounce, isEmpty, cloneDeep} from 'lodash'
+  import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit} from 'lodash'
   import ElCard from "element-ui/packages/card/src/main";
 
   export default {
@@ -81,7 +81,7 @@
           url: '',
           beginDate: '',
           endDate: '',
-          dateRange: '',
+          dateRange: [],
           startIndex: 0,
           pageSize: 10
         },
@@ -91,7 +91,7 @@
           url: '',
           beginDate: '',
           endDate: '',
-          dateRange: '',
+          dateRange: [],
           startIndex: 0,
           pageSize: 10
         },
@@ -148,10 +148,6 @@
     },
     computed: {
       tableData: function () {
-        if (isEmpty(this.fun_key_words)) {
-          return [];
-        }
-        console.log(cloneDeep(this.fun_key_words));
         return cloneDeep(this.fun_key_words);
       }
     },
@@ -159,7 +155,7 @@
       console.log(`功能服务 mounted()`)
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
-      }, 200);
+      }, 500);
       this.triggerResize();
       return this.fetchData();
     },
@@ -174,23 +170,29 @@
       },
       resizeHandler() {
         if (document.querySelector('.table-container')) {
+          // debugger;
           return document.querySelector('.table-container').getBoundingClientRect().height - (12);
         }
+        // debugger;
         return 0;
       },
-      fetchData() {
+      fetchData(startIndex) {
         let loading = this.$loading({
           target: '.mgrFunKeyWord',
           lock: true,
           text: '正在获取数据。。。',
           background: 'rgba(255,255,255,0.3)'
         });
-        this.form_search.startIndex = this.current_page - 1;
-        this.form_search.pageSize = this.page_size;
-        return API.getAllApp(this.form_search).then(res => {
+        this.form_search.startIndex = startIndex ? Number(startIndex) : this.current_page - 1;
+        this.form_search.pageSize = Number(this.page_size);
+        if (!isEmpty(this.form_search.dateRange)) {
+          this.form_search.beginDate = this.form_search.dateRange[0];
+          this.form_search.endDate = this.form_search.dateRange[1];
+        }
+        return API.getAllApp(omit(this.form_search, ['dateRange'])).then(res => {
           console.log(`res.list: `, res.list);
           this.fun_key_words = res.list;
-          this.page_total = res.total;
+          this.page_total = Number(res.total);
           loading.close();
         }, err => {
           console.error(`err: `, err);
@@ -203,18 +205,24 @@
           window.onresize();
         });
       },
+      exportCSV() {
+        return API.exportCSV({}).then(res => {
+        }, err => {
+          console.error(`err: `, err);
+        });
+      },
       resetFormSearch() {
         this.form_search = extend({}, this.tmpl_form_search);
         return this.fetchData();
       },
       handleCurrentPageChange(val) {
         console.log(`当前页: ${val}`);
-        this.current_page = val;
+        this.current_page = Number(val);
         return this.fetchData();
       },
       handlePageSizeChange(val) {
         console.log(`每页 ${val} 条`);
-        this.page_size = val;
+        this.page_size = Number(val);
         return this.fetchData();
       }
     },

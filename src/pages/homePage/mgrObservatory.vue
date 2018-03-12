@@ -1,81 +1,111 @@
 <template lang="pug">
     el-container.mgrObservatory
         el-main.main
-            el-card.card.operations(:body-style="{padding:'10px',display: 'flex','justify-content': 'space-between'}")
-                el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="100px", label-position='left', size='mini')
-                    div(style='width: 40%;')
-                        el-form-item(label='功能名称:')
-                            el-input(v-model.trim='form_search.name', auto-complete='off')
-                        el-form-item(label='跳转链接:')
-                            el-input(v-model.trim='form_search.keyWords', auto-complete='off')
-                    div(style='width: 40%;')
-                        el-form-item(label='关键词:')
-                            el-input(v-model.trim='form_search.marketTerm', auto-complete='off')
-                        el-form-item(label='关键词有效期:')
-                            el-col(:span="11")
-                                el-date-picker(type="date" placeholder="选择日期" v-model="form_search.beginDate" style="width: 100%;")
-                            el-col(:span="2", style='text-align: center;')
-                                | 至
-                            el-col(:span="11")
-                                el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")
-                    div(style='width: 20%;')
-                        el-button(type='primary', @click="", icon='el-icon-search', :loading='isSearching', size='mini')
-                            | 搜索
-                        el-button(type='primary', @click="", icon='el-icon-error', size='mini')
-                            | 重置
-                        el-button(type='primary', @click="", icon='el-icon-download', size='mini')
-                            | 导出
+            el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
+                div
+                    el-button(type='primary', @click="addMain", icon='el-icon-circle-plus', size='mini')
+                        | 新增主版本号
+                    el-button(type='primary', @click="addFork", icon='el-icon-circle-plus', size='mini')
+                        | 新增分支号
 
-            .table-mgrObservatory
+            .table-container
                 el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
-                    el-table-column(prop='id', label='条目ID')
-                    el-table-column(prop='name', label='功能名称')
-                    el-table-column(prop='parent', label='父级功能标识')
-                    el-table-column(prop='keyWords', label='关键词', :show-overflow-tooltip='true', width='200px')
-                    el-table-column(prop='weightWord', label='权重关键词')
-                    el-table-column(prop='url', label='跳转链接', width='300px')
-                    el-table-column(prop='sonUrl', label='子跳转链接')
-                    el-table-column(prop='actionType', label='跳转链接类型')
-                    el-table-column(prop='appVersion', label='最低可兼容APP版本')
-                    el-table-column(prop='level', label='功能层级')
-                    el-table-column(prop='fatherId', label='父节点ID')
-                    el-table-column(prop='status', label='功能标识')
-                    el-table-column(prop='remark', label='说明')
-                    el-table-column(prop='updateBy', label='更新人')
-                    el-table-column(prop='updateDate', label='更新日期')
-                    el-table-column(prop='clientSystem', label='客户端操作系统')
-                    el-table-column(prop='androidLowVersion', label='最低可兼容Android版本')
-                    el-table-column(prop='iosLowVersion', label='最低可兼容IOS版本')
-                    el-table-column(prop='weight', label='权重')
-                    el-table-column(prop='appRemark', label='功能标识')
-                    el-table-column(prop='imgUrl', label='图标链接')
+                    el-table-column(prop='module', label='域', width='75px')
+                    el-table-column(prop='versionNum', label='主版本号', width='75px')
+                    el-table-column(prop='branchNum', label='分支号', width='75px')
+                    el-table-column(prop='title', label='标题', width='150px')
+                    el-table-column(prop='content', label='内容描述', width='150px')
+                    el-table-column(prop='openFlag', label='是否开启', width='150px')
+                    el-table-column(prop='userTagId', label='标签ID', width='200px')
+                    el-table-column(prop='createTime', label='创建时间', width='200px')
+                    el-table-column(prop='updateTime', label='修改时间', width='200px')
 
+
+            .pagination
+                el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
+                <!--el-pagination(@size-change="handlePageSizeChange", @current-change="handleCurrentPageChange", :current-page="current_page", :page-sizes="[100, 200, 300, 400]", :page-size="100", layout="total, prev, pager, next, jumper", :total="400")-->
 </template>
 
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, extend, assign, debounce, isEmpty, cloneDeep} from 'lodash'
-  import format from 'date-fns/format'
+  import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit} from 'lodash'
   import ElCard from "element-ui/packages/card/src/main";
-
-  const zh_cn = require('date-fns/locale/zh-CN')
 
   export default {
     name: 'mgrObservatory',
     metaInfo: {
-      titleTemplate: '%s-用户管理'
+      titleTemplate: '%s-版本配置'
     },
     data() {
       return {
         isSearching: false,
-        form_search: {
+        form_version: {
           name: '',
           keyWords: '',
-          marketTerm: '',
+          url: '',
           beginDate: '',
-          endDate: ''
+          endDate: '',
+          dateRange: [],
+          startIndex: 0,
+          pageSize: 10
         },
+        tmpl_form_version: {
+          name: '',
+          keyWords: '',
+          url: '',
+          beginDate: '',
+          endDate: '',
+          dateRange: [],
+          startIndex: 0,
+          pageSize: 10
+        },
+        date_picker_options: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近半年',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 182);
+              picker.$emit('pick', [start, end]);
+            }
+          }, {
+            text: '最近一年',
+            onClick(picker) {
+              const end = new Date();
+              const start = new Date();
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 365);
+              picker.$emit('pick', [start, end]);
+            }
+          }]
+        },
+        current_page: 1,
+        page_size: 10,
+        page_total: 0,
         fun_key_words: [],
         table_height: 0
         // table_height: this.resizeHandler()
@@ -83,16 +113,14 @@
     },
     computed: {
       tableData: function () {
-        console.log(cloneDeep(this.fun_key_words));
         return cloneDeep(this.fun_key_words);
       }
     },
     mounted() {
-      console.log(`观象台 mounted()`)
-      // this.table_height = this.resizeHandler();
+      console.log(`版本配置 mounted()`)
       window.onresize = debounce(() => {
         this.table_height = this.resizeHandler();
-      }, 200);
+      }, 500);
       this.triggerResize();
       return this.fetchData();
     },
@@ -106,23 +134,31 @@
         window.dispatchEvent(evt);
       },
       resizeHandler() {
-        console.log(`resizeHandler() => `, document.querySelector('.table-mgrObservatory').getBoundingClientRect().height - (12));
-        this.table_height = document.querySelector('.table-mgrObservatory').getBoundingClientRect().height - (12);
-        return document.querySelector('.table-mgrObservatory').getBoundingClientRect().height - (12);
+        if (document.querySelector('.table-container')) {
+          // debugger;
+          return document.querySelector('.table-container').getBoundingClientRect().height - (12);
+        }
+        // debugger;
+        return 0;
       },
-      fetchData() {
-
+      fetchData(startIndex) {
         let loading = this.$loading({
           target: '.mgrObservatory',
           lock: true,
           text: '正在获取数据。。。',
-          background: 'rgba(250,235,215,0.5)'
+          background: 'rgba(255,255,255,0.3)'
         });
-        return API.getAllApp().then(res => {
+        this.form_version.startIndex = startIndex ? Number(startIndex) : this.current_page - 1;
+        this.form_version.pageSize = Number(this.page_size);
+        if (!isEmpty(this.form_version.dateRange)) {
+          this.form_version.beginDate = this.form_version.dateRange[0];
+          this.form_version.endDate = this.form_version.dateRange[1];
+        }
+        return API.getAllApp(omit(this.form_version, ['dateRange'])).then(res => {
           console.log(`res.list: `, res.list);
           this.fun_key_words = res.list;
+          this.page_total = Number(res.total);
           loading.close();
-
         }, err => {
           console.error(`err: `, err);
           loading.close();
@@ -134,56 +170,25 @@
           window.onresize();
         });
       },
-      sortCreateDate(a: number, b: number): number {
-        return Number(a.createDate) - Number(b.createDate);
-      },
-      handleAddUser() {
-        console.log(`handleAddUser()`);
-        this.operation = 'add_user';
-        this.form_add_user = extend({}, this.tmpl_form_add_user);
-        this.dialog_add_user_visible = true;
-      },
-      cancelForm(formName: string) {
-        console.log(`cancelForm(${formName})`);
-        this.$refs[formName].resetFields();
-        this.form_add_user = extend({}, this.tmpl_form_add_user);
-        this.dialog_add_user_visible = false;
-      },
-      validateForm(form: string) {
-        console.log('validateForm(form): ', form);
-        console.log(this.$refs[form]);
-
-        this.$refs[form].validate((valid) => {
-          console.log(`valid: `, valid);
-          if (valid) {
-            // alert('submit!');
-            return this.postForm(this.form_add_user);
-          } else {
-            console.error('error submit!!');
-            return false;
-          }
-        });
-      },
-      postForm(data) {
-        console.log(`postForm(): `, data);
-        API[this.form_actions[this.operation].api_name](data).then(res => {
-          this.$notify({
-            message: `${this.form_actions[this.operation].display_name}成功`,
-            type: 'success',
-            duration: 2000
-          });
-          this.isSendingForm = false;
-          this.cancelForm(this.form_actions[this.operation].form_name);
-          return this.fetchData();
+      exportCSV() {
+        return API.exportCSV({}).then(res => {
         }, err => {
-          console.log(`err: `, err);
-          this.$notify({
-            message: `${err.message}`,
-            type: 'error',
-            duration: 0
-          });
-          this.isSendingForm = false;
+          console.error(`err: `, err);
         });
+      },
+      resetFormSearch() {
+        this.form_version = extend({}, this.tmpl_form_version);
+        return this.fetchData();
+      },
+      handleCurrentPageChange(val) {
+        console.log(`当前页: ${val}`);
+        this.current_page = Number(val);
+        return this.fetchData();
+      },
+      handlePageSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        this.page_size = Number(val);
+        return this.fetchData();
       }
     },
     components: {ElCard}
@@ -192,7 +197,7 @@
 
 <style lang="stylus" scoped>
     .mgrObservatory
-        background-color antiquewhite
+        background-color #F8FAFE
         min-height 100%
         position relative
 
@@ -227,7 +232,13 @@
         height 100%
         font-size 12px
 
-    .table-mgrObservatory
+    .table-container /deep/ .el-table--mini th
+        padding 5px 0
+
+    .table-container /deep/ .el-table th > .cell
+        color #303236
+
+    .table-container
         flex-shrink 1
         flex-grow 1
         margin-bottom 0
@@ -237,4 +248,13 @@
         background-color #fff
         box-shadow 0 2px 12px 0 rgba(0, 0, 0, .1)
         border-radius 4px
+
+    .pagination
+        display flex
+        justify-content center
+        flex none
+
+    .pagination /deep/ .el-pagination
+        padding 5px
+        padding-bottom 0px
 </style>

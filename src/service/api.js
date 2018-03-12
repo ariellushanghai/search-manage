@@ -33,6 +33,11 @@ export default {
     // return network.get('/getAllApp.json');
     return network.post('/module/getAllApp.do', undefined, {params: req});
   },
+  // 关键词管理-配置功能服务-表格导出为csv格式
+  exportCSV(req) {
+    // return network.get('/getAllApp.json');
+    return network.post('/module/appImport.do', undefined, {params: req});
+  },
   // 构建镜像
   buildImage(obj) {
     let req = network.create({
