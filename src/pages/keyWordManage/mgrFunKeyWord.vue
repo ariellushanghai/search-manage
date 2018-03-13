@@ -1,65 +1,98 @@
 <template>
-  <el-container class="mgrFunKeyWord">
-    <el-main class="main">
-      <!-- 编辑关键词弹出框-->
-      <el-dialog class="dialog_edit_keywords" :visible.sync="dialog_edit_keywords" width="61.8%" top="50px" :append-to-body="true" :modal-append-to-body="true" :lock-scroll="true" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false">
-        <el-form :model="form_update_keyWord" :disabled="isSubmitting" :status-icon="true" label-width="150px" label-position="left" size="mini"></el-form>
-      </el-dialog>
-      <el-card class="card operations" :body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}">
-        <el-form :model="form_search" :disabled="isSearching" :status-icon="true" label-width="150px" label-position="left" size="mini">
-          <div style="width: 40%;">
-            <el-form-item label="功能名称:">
-              <el-input v-model.trim="form_search.name" auto-complete="off" :clearable="true"></el-input>
-            </el-form-item>
-            <el-form-item label="跳转链接:">
-              <el-input v-model.trim="form_search.url" auto-complete="off" :clearable="true"></el-input>
-            </el-form-item>
-          </div>
-          <div style="width: 40%;">
-            <el-form-item label="关键词:">
-              <el-input v-model.trim="form_search.marketTerm" auto-complete="off"></el-input>
-            </el-form-item>
-            <el-form-item label="关键词有效期:">
-              <el-date-picker v-model="form_search.dateRange" type="daterange" value-format="yyyy/MM/dd" format="yyyy/MM/dd" align="center" :unlink-panels="true" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="date_picker_options" size="mini" style="width: 100%;"></el-date-picker>
-            </el-form-item>
-          </div>
-          <div style="width: 20%;">
-            <el-button type="primary" @click="fetchData('0')" icon="el-icon-search" :loading="isSearching" size="mini">搜索</el-button>
-            <el-button type="primary" @click="resetFormSearch" icon="el-icon-error" size="mini">重置</el-button>
-            <el-button type="primary" @click="exportCSV" icon="el-icon-download" size="mini">导出</el-button>
-          </div>
-        </el-form>
-      </el-card>
-      <div class="table-container">
-        <el-table class="table" :data="tableData" :height="table_height" :stripe="true" :border="true" size="mini" tooltip-effect="light" @cell-click="handlerCellClick">
-          <el-table-column prop="id" label="条目ID" min-width="100px"></el-table-column>
-          <el-table-column prop="name" label="功能名称" min-width="100px"></el-table-column>
-          <el-table-column prop="parent" label="父级功能标识" min-width="150px"></el-table-column>
-          <el-table-column prop="wordList" label="关键词 (可编辑)" :show-overflow-tooltip="true" min-width="300px" :formatter="formatKeyWords" class-name="cursor-pointer"></el-table-column>
-          <el-table-column prop="marketTerm" label="营销术语 (可编辑)" min-width="300px" :formatter="formatMarketTerm" class-name="cursor-pointer"></el-table-column>
-          <el-table-column prop="url" label="跳转链接" min-width="300px"></el-table-column>
-          <el-table-column prop="sonUrl" label="子跳转链接" min-width="300px"></el-table-column>
-          <el-table-column prop="actionType" label="跳转链接类型" min-width="100px"></el-table-column>
-          <el-table-column prop="appVersion" label="最低可兼容APP版本" min-width="180px"></el-table-column>
-          <el-table-column prop="level" label="功能层级" min-width="100px"></el-table-column>
-          <el-table-column prop="fatherId" label="父节点ID" min-width="100px"></el-table-column>
-          <el-table-column prop="status" label="功能标识" min-width="100px"></el-table-column>
-          <el-table-column prop="remark" label="说明" min-width="100px"></el-table-column>
-          <el-table-column prop="updateBy" label="更新人" min-width="150px"></el-table-column>
-          <el-table-column prop="updateDate" label="更新日期" min-width="150px"></el-table-column>
-          <el-table-column prop="clientSystem" label="客户端操作系统" min-width="120px"></el-table-column>
-          <el-table-column prop="androidLowVersion" label="最低可兼容Android版本" min-width="180px"></el-table-column>
-          <el-table-column prop="iosLowVersion" label="最低可兼容IOS版本" min-width="150px"></el-table-column>
-          <el-table-column prop="weight" label="权重" min-width="50px"></el-table-column>
-          <el-table-column prop="appRemark" label="功能标识" min-width="100px"></el-table-column>
-          <el-table-column prop="imgUrl" label="图标链接" min-width="100px"></el-table-column>
-        </el-table>
-      </div>
-      <div class="pagination">
-        <el-pagination @size-change="handlePageSizeChange" @current-change="handleCurrentPageChange" :current-page="current_page" :total="page_total" :page-size="10" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :background="true" :small="true"></el-pagination>
-      </div>
-    </el-main>
-  </el-container>
+    <el-container class="mgrFunKeyWord">
+        <el-main class="main">
+            <!-- 编辑关键词弹出框-->
+            <el-dialog class="dialog_edit_keywords" :visible.sync="dialog_edit_keywords" width="61.8%" top="50px"
+                       append-to-body modal-append-to-body lock-scroll show-close :close-on-click-modal="false"
+                       :close-on-press-escape="false">
+                <el-form :model="form_update_keyWord" :disabled="isSubmitting" status-icon label-width="150px"
+                         label-position="left" size="mini">
+
+                </el-form>
+            </el-dialog>
+            <el-card class="card operations"
+                     :body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}">
+                <el-form :model="form_search" :disabled="isSearching" status-icon label-width="150px"
+                         label-position="left" size="mini">
+                    <div style="width: 40%;">
+                        <el-form-item label="功能名称:">
+                            <el-input v-model.trim="form_search.name" auto-complete="off" clearable>
+
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="跳转链接:">
+                            <el-input v-model.trim="form_search.url" auto-complete="off" clearable>
+
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                    <div style="width: 40%;">
+                        <el-form-item label="关键词:">
+                            <el-input v-model.trim="form_search.marketTerm" auto-complete="off">
+
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="关键词有效期:">
+                            <el-date-picker v-model="form_search.dateRange" type="daterange" value-format="yyyy/MM/dd"
+                                            format="yyyy/MM/dd" align="center" :unlink-panels="true" range-separator="至"
+                                            start-placeholder="开始日期" end-placeholder="结束日期"
+                                            :picker-options="date_picker_options" size="mini"
+                                            style="width: 100%;">
+
+                            </el-date-picker>
+                        </el-form-item>
+                    </div>
+                    <div style="width: 20%;">
+                        <el-button type="primary" @click="fetchData('0')" icon="el-icon-search" :loading="isSearching"
+                                   size="mini">搜索
+                        </el-button>
+                        <el-button type="primary" @click="resetFormSearch" icon="el-icon-error" size="mini">重置
+                        </el-button>
+                        <el-button type="primary" @click="exportCSV" icon="el-icon-download" size="mini">导出</el-button>
+                    </div>
+                </el-form>
+            </el-card>
+
+            <div class="table-container">
+                <el-table class="table" :data="tableData" :height="table_height" stripe border size="mini"
+                          tooltip-effect="light" @cell-click="handlerCellClick">
+
+                    <el-table-column prop="id" label="条目ID" min-width="100px"></el-table-column>
+                    <el-table-column prop="name" label="功能名称" min-width="100px"></el-table-column>
+                    <el-table-column prop="parent" label="父级功能标识" min-width="150px"></el-table-column>
+                    <el-table-column prop="wordList" label="关键词 (可编辑)" :show-overflow-tooltip="true" min-width="300px"
+                                     :formatter="formatKeyWords" class-name="cursor-pointer"></el-table-column>
+                    <el-table-column prop="marketTerm" label="营销术语 (可编辑)" min-width="300px"
+                                     :formatter="formatMarketTerm" class-name="cursor-pointer"></el-table-column>
+                    <el-table-column prop="url" label="跳转链接" min-width="300px"></el-table-column>
+                    <el-table-column prop="sonUrl" label="子跳转链接" min-width="300px"></el-table-column>
+                    <el-table-column prop="actionType" label="跳转链接类型" min-width="100px"></el-table-column>
+                    <el-table-column prop="appVersion" label="最低可兼容APP版本" min-width="180px"></el-table-column>
+                    <el-table-column prop="level" label="功能层级" min-width="100px"></el-table-column>
+                    <el-table-column prop="fatherId" label="父节点ID" min-width="100px"></el-table-column>
+                    <el-table-column prop="status" label="功能标识" min-width="100px"></el-table-column>
+                    <el-table-column prop="remark" label="说明" min-width="100px"></el-table-column>
+                    <el-table-column prop="updateBy" label="更新人" min-width="150px"></el-table-column>
+                    <el-table-column prop="updateDate" label="更新日期" min-width="150px"></el-table-column>
+                    <el-table-column prop="clientSystem" label="客户端操作系统" min-width="120px"></el-table-column>
+                    <el-table-column prop="androidLowVersion" label="最低可兼容Android版本"
+                                     min-width="180px"></el-table-column>
+                    <el-table-column prop="iosLowVersion" label="最低可兼容IOS版本" min-width="150px"></el-table-column>
+                    <el-table-column prop="weight" label="权重" min-width="50px"></el-table-column>
+                    <el-table-column prop="appRemark" label="功能标识" min-width="100px"></el-table-column>
+                    <el-table-column prop="imgUrl" label="图标链接" min-width="100px"></el-table-column>
+                </el-table>
+            </div>
+            <div class="pagination">
+                <el-pagination @size-change="handlePageSizeChange" @current-change="handleCurrentPageChange"
+                               :current-page="current_page" :total="page_total" :page-size="10"
+                               :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper"
+                               background small>
+
+                </el-pagination>
+            </div>
+        </el-main>
+    </el-container>
 </template>
 
 <script>
