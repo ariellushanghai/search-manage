@@ -1,34 +1,39 @@
-<template lang="pug">
-    el-container.mgrObservatory
-        el-main.main
-            el-dialog.dialog-add-edit-main(:visible.sync='dialog_add_edit_main_visible', width='61.8%', top='50px', :append-to-body='true', :modal-append-to-body='true', :lockScroll='true', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false')
-            el-dialog.dialog-add-edit-fork(:visible.sync='dialog_add_edit_fork_visible', width='61.8%', top='50px', :append-to-body='true', :modal-append-to-body='true', :lockScroll='true', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false')
- 
-            .chart
-                #flow_chart
-                    flow-chart(:dom_id="'flow_chart'", :data="{}")
-            .non-chart
-                el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
-                    div
-                        el-button(type='primary', @click="addMain", icon='el-icon-circle-plus', size='mini')
-                            | 新增主版本号
-                        el-button(type='primary', @click="addFork", icon='el-icon-circle-plus', size='mini')
-                            | 新增分支号
-
-                .table-container
-                    el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
-                        el-table-column(prop='module', label='域', min-width='75px')
-                        el-table-column(prop='versionNum', label='主版本号', min-width='75px')
-                        el-table-column(prop='branchNum', label='分支号', min-width='75px')
-                        el-table-column(prop='title', label='标题', min-width='150px')
-                        el-table-column(prop='content', label='内容描述', min-width='200px')
-                        el-table-column(prop='openFlag', label='是否开启', min-width='50px')
-                        el-table-column(prop='userTagId', label='标签ID', min-width='150px')
-                        el-table-column(prop='createTime', label='创建时间', min-width='200px')
-                        el-table-column(prop='updateTime', label='修改时间', min-width='200px')
-
-                .pagination
-                    el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
+<template>
+  <el-container class="mgrObservatory">
+    <el-main class="main">
+      <el-dialog class="dialog-add-edit-main" :visible.sync="dialog_add_edit_main_visible" width="61.8%" top="50px" :append-to-body="true" :modal-append-to-body="true" :lockScroll="true" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false"></el-dialog>
+      <el-dialog class="dialog-add-edit-fork" :visible.sync="dialog_add_edit_fork_visible" width="61.8%" top="50px" :append-to-body="true" :modal-append-to-body="true" :lockScroll="true" :show-close="true" :close-on-click-modal="false" :close-on-press-escape="false"></el-dialog>
+      <div class="chart">
+        <div id="flow_chart">
+          <flow-chart :dom_id="'flow_chart'" :data="{}"></flow-chart>
+        </div>
+      </div>
+      <div class="non-chart">
+        <el-card class="card operations" :body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}">
+          <div>
+            <el-button type="primary" @click="addMain" icon="el-icon-circle-plus" size="mini">新增主版本号</el-button>
+            <el-button type="primary" @click="addFork" icon="el-icon-circle-plus" size="mini">新增分支号</el-button>
+          </div>
+        </el-card>
+        <div class="table-container">
+          <el-table class="table" :data="tableData" :height="table_height" :stripe="true" :border="true" size="mini" tooltip-effect="light">
+            <el-table-column prop="module" label="域" min-width="75px"></el-table-column>
+            <el-table-column prop="versionNum" label="主版本号" min-width="75px"></el-table-column>
+            <el-table-column prop="branchNum" label="分支号" min-width="75px"></el-table-column>
+            <el-table-column prop="title" label="标题" min-width="150px"></el-table-column>
+            <el-table-column prop="content" label="内容描述" min-width="200px"></el-table-column>
+            <el-table-column prop="openFlag" label="是否开启" min-width="50px"></el-table-column>
+            <el-table-column prop="userTagId" label="标签ID" min-width="150px"></el-table-column>
+            <el-table-column prop="createTime" label="创建时间" min-width="200px"></el-table-column>
+            <el-table-column prop="updateTime" label="修改时间" min-width="200px"></el-table-column>
+          </el-table>
+        </div>
+        <div class="pagination">
+          <el-pagination @size-change="handlePageSizeChange" @current-change="handleCurrentPageChange" :current-page="current_page" :total="page_total" :page-size="10" :page-sizes="[10, 20, 50, 100]" layout="total, sizes, prev, pager, next, jumper" :background="true" :small="true"></el-pagination>
+        </div>
+      </div>
+    </el-main>
+  </el-container>
 </template>
 
 <script>

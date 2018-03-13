@@ -1,31 +1,26 @@
-<template lang="pug">
-    el-row.row(type='flex')
-        el-col(:sm='3', :md='3', :lg='2', :xl='2')
-            router-link.link.col(:to="{path: '/'}")
-                img.logo(:src='logo_file')
-        |
-        el-col.title(:sm='3', :md='3', :lg='2', :xl='2')
-            span 搜索管理
-        |
-        el-col(:sm='15', :md='15', :lg='17', :xl='17')
-            el-menu(mode='horizontal', background-color='#333644', text-color='#fff', active-text-color='#EA5505', :default-active='defaultActive', :router='true')
-                el-submenu(v-for='menu in menuItems', :index="'/' + menu.route", :key='menu.route')
-                    template(slot='title')
-                        | {{menu.display_name}}
-                    el-menu-item(v-for='child in menu.children', :index="'/' + child.route", :key='child.route')
-                        | {{child.display_name}}
-
-        |
-        el-col.col-user(:span='3')
-            el-dropdown(@command='handleCommand', placement='bottom')
-                el-button.btn-user(type='text')
-                    | {{userName}}
-                    i.el-icon-arrow-down.el-icon--right
-                |
-                el-dropdown-menu(slot='dropdown')
-                    el-dropdown-item(command='logout') 退出
-            |
-
+<template>
+    <el-row class="row" type="flex">
+    <el-col :sm="3" :md="3" :lg="2" :xl="2">
+        <router-link class="link col" :to="{path: '/'}"><img class="logo" :src="logo_file"/></router-link>
+    </el-col>
+    <el-col class="title" :sm="3" :md="3" :lg="2" :xl="2"><span>搜索管理</span></el-col>
+    <el-col :sm="15" :md="15" :lg="17" :xl="17">
+        <el-menu mode="horizontal" background-color="#333644" text-color="#fff" active-text-color="#EA5505" :default-active="defaultActive" :router="true">
+        <el-submenu v-for="menu in menuItems" :index="'/' + menu.route" :key="menu.route">
+            <template slot="title">{{menu.display_name}}</template>
+            <el-menu-item v-for="child in menu.children" :index="'/' + child.route" :key="child.route">{{child.display_name}}</el-menu-item>
+        </el-submenu>
+        </el-menu>
+    </el-col>
+    <el-col class="col-user" :span="3">
+        <el-dropdown @command="handleCommand" placement="bottom">
+        <el-button class="btn-user" type="text">{{userName}}<i class="el-icon-arrow-down el-icon--right"></i></el-button>
+        <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="logout">退出</el-dropdown-item>
+        </el-dropdown-menu>
+        </el-dropdown>
+    </el-col>
+    </el-row>
 </template>
 
 <script>
