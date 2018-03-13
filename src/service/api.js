@@ -11,6 +11,11 @@ export default {
     // return network.get('/getAllApp.json');
     return network.post('/module/getAllApp.do', undefined, {params: req});
   },
+  // 更新 关键词-配置功能服务
+  updateKeyWord(req) {
+    // return network.get('/getAllApp.json');
+    return network.post('/module/updateKeyWord.do', undefined, {params: req});
+  },
   // 关键词管理-配置功能服务-表格导出为csv格式
   exportCSV(req) {
     // return network.get('/getAllApp.json');

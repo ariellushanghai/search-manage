@@ -1,6 +1,9 @@
 <template lang="pug">
     el-container.mgrObservatory
         el-main.main
+            el-dialog.dialog-add-edit-main(:visible.sync='dialog_add_edit_main_visible', width='61.8%', top='50px', :append-to-body='true', :modal-append-to-body='true', :lockScroll='true', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false')
+            el-dialog.dialog-add-edit-fork(:visible.sync='dialog_add_edit_fork_visible', width='61.8%', top='50px', :append-to-body='true', :modal-append-to-body='true', :lockScroll='true', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false')
+ 
             .chart
                 #flow_chart
                     flow-chart(:dom_id="'flow_chart'", :data="{}")
@@ -43,6 +46,8 @@
     data() {
       return {
         isSearching: false,
+        dialog_add_edit_main_visible: false,
+        dialog_add_edit_fork_visible: false,
         form_version: {
           name: '',
           keyWords: '',

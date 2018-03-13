@@ -1,6 +1,11 @@
 <template lang="pug">
     el-container.mgrFunKeyWord
         el-main.main
+            // 编辑关键词弹出框
+            el-dialog.dialog_edit_keywords(:visible.sync='dialog_edit_keywords', width='61.8%', top='50px', :append-to-body='true', :modal-append-to-body='true', :lock-scroll='true', :show-close='true', :close-on-click-modal='false', :close-on-press-escape='false')
+                el-form(:model='form_update_keyWord', :disabled='isSubmitting', :status-icon='true', label-width="150px", label-position='left', size='mini')
+
+
             el-card.card.operations(:body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}")
                 el-form(:model='form_search', :disabled='isSearching', :status-icon='true', label-width="150px", label-position='left', size='mini')
                     div(style='width: 40%;')
@@ -15,12 +20,6 @@
                             el-input(v-model.trim='form_search.marketTerm', auto-complete='off')
 
                         el-form-item(label='关键词有效期:')
-                            <!--el-col(:span="11")-->
-                            <!--el-date-picker(type="date" placeholder="选择日期" v-model="form_search.beginDate" style="width: 100%;")-->
-                            <!--el-col(:span="2", style='text-align: center;')-->
-                            <!--| 至-->
-                            <!--el-col(:span="11")-->
-                            <!--el-date-picker(type="date" placeholder="选择日期" v-model="form_search.endDate" style="width: 100%;")-->
                             el-date-picker(v-model='form_search.dateRange', type='daterange', value-format='yyyy/MM/dd', format='yyyy/MM/dd', align='center', :unlink-panels='true', range-separator='至' start-placeholder='开始日期' end-placeholder='结束日期', :picker-options='date_picker_options' , size='mini', style="width: 100%;")
 
                     div(style='width: 20%;')
@@ -32,39 +31,37 @@
                             | 导出
 
             .table-container
-                el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light')
-                    el-table-column(prop='id', label='条目ID', width='100px')
-                    el-table-column(prop='name', label='功能名称', width='100px')
-                    el-table-column(prop='parent', label='父级功能标识', width='150px')
-                    <!--el-table-column(prop='weightWord', label='权重关键词 (可编辑)', width='300px')-->
-                    el-table-column(prop='keyWords', label='关键词 (可编辑)', :show-overflow-tooltip='true', width='300px')
-                    el-table-column(prop='marketTerm', label='营销术语 (可编辑)', width='300px')
-                    el-table-column(prop='url', label='跳转链接', width='300px')
-                    el-table-column(prop='sonUrl', label='子跳转链接', width='300px')
-                    el-table-column(prop='actionType', label='跳转链接类型', width='100px')
-                    el-table-column(prop='appVersion', label='最低可兼容APP版本', width='180px')
-                    el-table-column(prop='level', label='功能层级', width='100px')
-                    el-table-column(prop='fatherId', label='父节点ID', width='100px')
-                    el-table-column(prop='status', label='功能标识', width='100px')
-                    el-table-column(prop='remark', label='说明', width='100px')
-                    el-table-column(prop='updateBy', label='更新人', width='150px')
-                    el-table-column(prop='updateDate', label='更新日期', width='150px')
-                    el-table-column(prop='clientSystem', label='客户端操作系统', width='120px')
-                    el-table-column(prop='androidLowVersion', label='最低可兼容Android版本', width='180px')
-                    el-table-column(prop='iosLowVersion', label='最低可兼容IOS版本', width='150px')
-                    el-table-column(prop='weight', label='权重', width='50px')
-                    el-table-column(prop='appRemark', label='功能标识', width='100px')
-                    el-table-column(prop='imgUrl', label='图标链接', width='100px')
+                el-table.table(:data='tableData', :height='table_height', :stripe='true', :border='true', size='mini', tooltip-effect='light', @cell-click="handlerCellClick")
+                    el-table-column(prop='id', label='条目ID', min-width='100px')
+                    el-table-column(prop='name', label='功能名称', min-width='100px')
+                    el-table-column(prop='parent', label='父级功能标识', min-width='150px')
+                    el-table-column(prop='wordList', label='关键词 (可编辑)', :show-overflow-tooltip='true', min-width='300px', :formatter="formatKeyWords", class-name='cursor-pointer')
+                    el-table-column(prop='marketTerm', label='营销术语 (可编辑)', min-width='300px', :formatter="formatMarketTerm", class-name='cursor-pointer')
+                    el-table-column(prop='url', label='跳转链接', min-width='300px')
+                    el-table-column(prop='sonUrl', label='子跳转链接', min-width='300px')
+                    el-table-column(prop='actionType', label='跳转链接类型', min-width='100px')
+                    el-table-column(prop='appVersion', label='最低可兼容APP版本', min-width='180px')
+                    el-table-column(prop='level', label='功能层级', min-width='100px')
+                    el-table-column(prop='fatherId', label='父节点ID', min-width='100px')
+                    el-table-column(prop='status', label='功能标识', min-width='100px')
+                    el-table-column(prop='remark', label='说明', min-width='100px')
+                    el-table-column(prop='updateBy', label='更新人', min-width='150px')
+                    el-table-column(prop='updateDate', label='更新日期', min-width='150px')
+                    el-table-column(prop='clientSystem', label='客户端操作系统', min-width='120px')
+                    el-table-column(prop='androidLowVersion', label='最低可兼容Android版本', min-width='180px')
+                    el-table-column(prop='iosLowVersion', label='最低可兼容IOS版本', min-width='150px')
+                    el-table-column(prop='weight', label='权重', min-width='50px')
+                    el-table-column(prop='appRemark', label='功能标识', min-width='100px')
+                    el-table-column(prop='imgUrl', label='图标链接', min-width='100px')
 
             .pagination
                 el-pagination(@size-change='handlePageSizeChange', @current-change='handleCurrentPageChange', :current-page='current_page', :total='page_total', :page-size="10", :page-sizes="[10, 20, 50, 100]", layout='total, sizes, prev, pager, next, jumper', :background='true', :small='true')
-                <!--el-pagination(@size-change="handlePageSizeChange", @current-change="handleCurrentPageChange", :current-page="current_page", :page-sizes="[100, 200, 300, 400]", :page-size="100", layout="total, prev, pager, next, jumper", :total="400")-->
 </template>
 
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit} from 'lodash'
+  import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit, join} from 'lodash'
   import ElCard from "element-ui/packages/card/src/main";
 
   export default {
@@ -75,6 +72,9 @@
     data() {
       return {
         isSearching: false,
+        isSubmitting: false,
+        dialog_edit_keywords: false,
+        dialog_edit_market_term: false,
         form_search: {
           name: '',
           keyWords: '',
@@ -94,6 +94,22 @@
           dateRange: [],
           startIndex: 0,
           pageSize: 10
+        },
+        form_update_keyWord: {
+          module: '',
+          termId: '',
+          wordList: []
+        },
+        tmpl_form_update_keyWord: {
+          module: '',
+          termId: '',
+          wordList: []
+        },
+        tmpl_form_update_keyWord_wordList_item: {
+          word: '',
+          weight: 0,
+          startDate: new Date(),
+          endDate: ((new Date()).getTime() - 3600 * 1000 * 24 * 7)
         },
         date_picker_options: {
           shortcuts: [{
@@ -224,6 +240,23 @@
         console.log(`每页 ${val} 条`);
         this.page_size = Number(val);
         return this.fetchData();
+      },
+      handlerCellClick(row, column, cell, event) {
+        // console.log(`handlerCellClick(): `, row[column.property])
+        if (column.property === 'wordList') {
+          this.dialog_edit_keywords = true;
+        } else if (column.property === 'marketTerm') {
+          this.dialog_edit_market_term = true;
+        } else {
+          return event.preventDefault();
+        }
+      },
+      formatKeyWords(row, column, cellValue) {
+        console.log(cellValue);
+        return join(map(cellValue, 'word'), ', ');
+      },
+      formatMarketTerm(row, column, cellValue) {
+        return cellValue;
       }
     },
     components: {ElCard}
@@ -290,6 +323,15 @@
         flex none
 
     .pagination /deep/ .el-pagination
+        display flex
+        justify-content center
+        align-items center
         padding 5px
-        padding-bottom 0px
+        padding-bottom 0
+
+    .operations /deep/ .el-date-editor .el-range-separator
+        min-width 22px
+
+    .table-container /deep/ .cursor-pointer:hover
+        cursor pointer
 </style>

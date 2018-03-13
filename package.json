@@ -26,7 +26,7 @@
     "material-design-icons": "^3.0.1",
     "normalize.css": "^8.0.0",
     "qs": "^6.5.1",
-    "v-contextmenu": "^2.2.0",
+    "v-contextmenu": "^2.3.0",
     "vue": "^2.5.15",
     "vue-meta": "^1.4.3",
     "vue-router": "^3.0.1",
