@@ -2,13 +2,59 @@
     <el-container class="mgrFunKeyWord">
         <el-main class="main">
             <!-- 编辑关键词弹出框-->
-            <el-dialog class="dialog_edit_keywords" :visible.sync="dialog_edit_keywords" width="61.8%" top="50px"
+            <el-dialog title="编辑关键词" class="dialog_edit_keywords" :visible.sync="dialog_edit_keywords" width="75%"
+                       top="50px"
                        append-to-body modal-append-to-body lock-scroll show-close :close-on-click-modal="false"
                        :close-on-press-escape="false">
-                <el-form :model="form_update_keyWord" :disabled="isSubmitting" status-icon label-width="150px"
-                         label-position="left" size="mini">
+                <div style="display: flex;justify-content: space-between;">
+                    <el-input v-model="filter_table_data_selected_keywords" placeholder="过滤关键词" size="small" clearable
+                              style="width: 50%;">
 
-                </el-form>
+                    </el-input>
+                    <el-button type="primary" @click="addKeywordEntry(1)" size="mini">新增关键词</el-button>
+                </div>
+                <el-table :data="table_data_selected_keywords" height="500" size="mini"
+                          stripe>
+                    <el-table-column label="关键词" min-width="150">
+                        <template slot-scope="scope">
+                            <el-input v-model="scope.row.word" size="mini" clearable></el-input>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="有效期" min-width="300">
+                        <template slot-scope="scope">
+                            <el-date-picker
+                                    v-model="scope.row.startTime"
+                                    type="date"
+                                    format="yyyy/MM/dd"
+                                    value-format="yyyy/MM/dd"
+                                    placeholder="开始日期" size="mini"
+                            >
+                            </el-date-picker>
+                            <el-date-picker
+                                    v-model="scope.row.endTime"
+                                    type="date"
+                                    format="yyyy/MM/dd"
+                                    value-format="yyyy/MM/dd"
+                                    placeholder="结束日期" size="mini">
+                            </el-date-picker>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="权重">
+                        <template slot-scope="scope">
+                            <el-switch
+                                    v-model="scope.row.weight"
+                                    active-text="高"
+                                    :active-value="Number(1)"
+                                    inactive-text="普通"
+                                    :inactive-value="Number(0)" size="mini">
+                            </el-switch>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <div slot="footer">
+                    <el-button type="primary" @click="handlerSubmitKeywords" size="mini">批量提交</el-button>
+                    <el-button type="danger" plain @click="handlerCloseKeywords" size="mini">取消</el-button>
+                </div>
             </el-dialog>
             <el-card class="card operations"
                      :body-style="{padding:'5px',display: 'flex','justify-content': 'space-between'}">
@@ -98,7 +144,7 @@
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit, join} from 'lodash'
+  import {map, filter, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit, join, concat, fill} from 'lodash'
   import ElCard from "element-ui/packages/card/src/main";
 
   export default {
@@ -112,6 +158,10 @@
         isSubmitting: false,
         dialog_edit_keywords: false,
         dialog_edit_market_term: false,
+        selected_id: '',
+        selected_keywords: [],
+        filter_table_data_selected_keywords: '',
+        test: '',
         form_search: {
           name: '',
           keyWords: '',
@@ -145,8 +195,8 @@
         tmpl_form_update_keyWord_wordList_item: {
           word: '',
           weight: 0,
-          startDate: new Date(),
-          endDate: ((new Date()).getTime() - 3600 * 1000 * 24 * 7)
+          startTime: new Date(),
+          endTime: (new Date(new Date() + 3600 * 1000 * 24 * 182))
         },
         date_picker_options: {
           shortcuts: [{
@@ -201,7 +251,16 @@
     },
     computed: {
       tableData: function () {
-        return cloneDeep(this.fun_key_words);
+        return this.fun_key_words;
+      },
+      table_data_selected_keywords: {
+        get: function () {
+          return cloneDeep(this.selected_keywords).filter((keyword) => keyword.word.toLowerCase().includes(String(this.filter_table_data_selected_keywords).toLowerCase()));
+        },
+        set: function (num) {
+          let increment = fill(Array(num), extend({}, this.tmpl_form_update_keyWord_wordList_item));
+          this.selected_keywords = concat(this.selected_keywords, increment);
+        }
       }
     },
     mounted() {
@@ -279,17 +338,55 @@
         return this.fetchData();
       },
       handlerCellClick(row, column, cell, event) {
-        // console.log(`handlerCellClick(): `, row[column.property])
+        console.log(`handlerCellClick(): `, row)
         if (column.property === 'wordList') {
           this.dialog_edit_keywords = true;
+          this.selected_id = row.id;
+          this.selected_keywords = row[column.property];
         } else if (column.property === 'marketTerm') {
           this.dialog_edit_market_term = true;
         } else {
           return event.preventDefault();
         }
       },
+      // 批量提交编辑过的关键词
+      handlerSubmitKeywords() {
+        let self = this;
+        console.log(`handlerSubmitKeywords(): `, self.selected_id);
+        self.filter_table_data_selected_keywords = '';
+        self.$nextTick(() => {
+
+          let payload = filter(self.table_data_selected_keywords, (w) => {
+            return w.word.trim() !== ''
+          })
+          console.log(`table_data_selected_keywords: `, payload)
+        });
+        // return API.updateKeyWord(omit(self.form_search, ['dateRange'])).then(res => {
+        //   console.log(`res.list: `, res.list);
+        //   self.fun_key_words = res.list;
+        //   self.page_total = Number(res.total);
+        //   loading.close();
+        // }, err => {
+        //   console.error(`err: `, err);
+        //   loading.close();
+        //   self.$notify({
+        //     message: `${err.message}`,
+        //     type: 'error',
+        //     duration: 0
+        //   });
+        //   window.onresize();
+        // });
+      },
+      handlerCloseKeywords() {
+        this.selected_id = '';
+        this.dialog_edit_keywords = false;
+      },
+      // 一次增加1条关键词条目
+      addKeywordEntry(num) {
+        this.table_data_selected_keywords = Number(num);
+      },
       formatKeyWords(row, column, cellValue) {
-        console.log(cellValue);
+        // console.log(cellValue);
         return join(map(cellValue, 'word'), ', ');
       },
       formatMarketTerm(row, column, cellValue) {
@@ -371,4 +468,7 @@
 
     .table-container /deep/ .cursor-pointer:hover
         cursor pointer
+
+    .dialog_edit_keywords /deep/ .el-dialog__body
+        padding 20px
 </style>
