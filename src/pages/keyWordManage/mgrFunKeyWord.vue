@@ -13,7 +13,10 @@
                     </el-input>
                     <el-button type="primary" @click="addKeywordEntry(1)" size="mini">新增关键词</el-button>
                 </div>
-                <el-table :data="table_data_selected_keywords" height="500" size="mini"
+                <el-table :data="table_data_selected_keywords" ref="table_data_selected_keywords"
+                          id="table_data_selected_keywords" height="500"
+                          size="mini"
+                          fit
                           stripe>
                     <el-table-column label="关键词" min-width="150">
                         <template slot-scope="scope">
@@ -52,8 +55,11 @@
                     </el-table-column>
                 </el-table>
                 <div slot="footer">
-                    <el-button type="primary" @click="handlerSubmitKeywords" size="mini">批量提交</el-button>
-                    <el-button type="danger" plain @click="handlerCloseKeywords" size="mini">取消</el-button>
+                    <el-button type="primary" @click="handlerSubmitKeywords" size="mini" :loading="isSubmitting">批量提交
+                    </el-button>
+                    <el-button type="danger" plain @click="handlerCloseKeywords" size="mini" :disabled="isSubmitting">
+                        取消
+                    </el-button>
                 </div>
             </el-dialog>
             <el-card class="card operations"
@@ -144,7 +150,8 @@
 <script>
   // @flow
   import API from '@/service/api'
-  import {map, filter, extend, assign, debounce, isEmpty, cloneDeep, omitBy, omit, join, concat, fill} from 'lodash'
+  import {map, filter, extend, debounce, isEmpty, cloneDeep, omit, join, concat, fill} from 'lodash'
+  import addMonths from 'date-fns/addMonths'
   import ElCard from "element-ui/packages/card/src/main";
 
   export default {
@@ -196,7 +203,7 @@
           word: '',
           weight: 0,
           startTime: new Date(),
-          endTime: (new Date(new Date() + 3600 * 1000 * 24 * 182))
+          endTime: addMonths(new Date(), 6)
         },
         date_picker_options: {
           shortcuts: [{
@@ -352,30 +359,31 @@
       // 批量提交编辑过的关键词
       handlerSubmitKeywords() {
         let self = this;
+        self.isSubmitting = true;
         console.log(`handlerSubmitKeywords(): `, self.selected_id);
         self.filter_table_data_selected_keywords = '';
-        self.$nextTick(() => {
 
-          let payload = filter(self.table_data_selected_keywords, (w) => {
-            return w.word.trim() !== ''
-          })
-          console.log(`table_data_selected_keywords: `, payload)
+        let payload = filter(self.table_data_selected_keywords, (w) => {
+          return w.word.trim() !== ''
         });
-        // return API.updateKeyWord(omit(self.form_search, ['dateRange'])).then(res => {
-        //   console.log(`res.list: `, res.list);
-        //   self.fun_key_words = res.list;
-        //   self.page_total = Number(res.total);
-        //   loading.close();
-        // }, err => {
-        //   console.error(`err: `, err);
-        //   loading.close();
-        //   self.$notify({
-        //     message: `${err.message}`,
-        //     type: 'error',
-        //     duration: 0
-        //   });
-        //   window.onresize();
-        // });
+        console.log(`table_data_selected_keywords: `, payload);
+        return API.updateKeyWord({
+          module: 'app',
+          id: self.selected_id,
+          wordList: payload
+        }).then(res => {
+          self.isSubmitting = false;
+          self.dialog_edit_keywords = false;
+          return self.fetchData();
+        }, err => {
+          console.error(`err: `, err);
+          self.$notify({
+            message: `${err.message}`,
+            type: 'error',
+            duration: 0
+          });
+          self.isSubmitting = false;
+        });
       },
       handlerCloseKeywords() {
         this.selected_id = '';
@@ -384,6 +392,9 @@
       // 一次增加1条关键词条目
       addKeywordEntry(num) {
         this.table_data_selected_keywords = Number(num);
+        // let $table = document.querySelector('#table_data_selected_keywords');
+        // this.$refs.table_data_selected_keywords.doLayout();
+        // $table.scrollTop = $table.scrollHeight;
       },
       formatKeyWords(row, column, cellValue) {
         // console.log(cellValue);
